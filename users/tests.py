@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from users.models import CustomUser
 from django.urls import reverse
 from django.contrib.auth import get_user
 
@@ -17,7 +17,7 @@ class RegisterationTestCase(TestCase):
             }
         )
         
-        user = User.objects.get(username="jamshidev")
+        user = CustomUser.objects.get(username="jamshidev")
         
         self.assertEqual(user.username, "jamshidev")
         self.assertEqual(user.first_name, "Jamshid")
@@ -35,7 +35,7 @@ class RegisterationTestCase(TestCase):
             }
         )
         
-        user_count = User.objects.count()
+        user_count = CustomUser.objects.count()
         
         self.assertEqual(user_count, 0)
         self.assertFormError(response, "form", "username", "This field is required.")
@@ -53,14 +53,14 @@ class RegisterationTestCase(TestCase):
             }
         )
         
-        user_count = User.objects.count()
+        user_count = CustomUser.objects.count()
         
         self.assertEqual(user_count, 0)
         self.assertFormError(response, "form", "email", "Enter a valid email address.")
         
     def test_unique_username(self):
         # 1. create a user  
-        user = User.objects.create(username="jamshidev", first_name="Jamshid")
+        user = CustomUser.objects.create(username="jamshidev", first_name="Jamshid")
         user.set_password("somepass")
         user.save()
         # self.client.post(
@@ -87,7 +87,7 @@ class RegisterationTestCase(TestCase):
         )
         
         # 3. check that the second user was not created
-        user_count = User.objects.count()
+        user_count = CustomUser.objects.count()
         
         self.assertEqual(user_count, 1)
         
@@ -98,7 +98,7 @@ class RegisterationTestCase(TestCase):
 
 class LoginTestCase(TestCase):
     def setUp(self):
-        self.db_user = User.objects.create(username="jamshidev", first_name="Jamshid")
+        self.db_user = CustomUser.objects.create(username="jamshidev", first_name="Jamshid")
         self.db_user.set_password("somepass")
         self.db_user.save()
     
@@ -155,7 +155,7 @@ class ProfileTestCase(TestCase):
         self.assertEqual(response.url, reverse("users:login") + "?next=/users/profile/")
 
     def test_profile_detail(self):
-        user = User.objects.create(
+        user = CustomUser.objects.create(
             username="jamshidev", first_name="Jamshid", last_name="Mahmudjonov", email="jamshid@gmail.com")
         user.set_password("somepass")
         user.save()
@@ -171,7 +171,7 @@ class ProfileTestCase(TestCase):
         self.assertContains(response, user.email)
 
     def test_profile_update(self):
-        user = User.objects.create(
+        user = CustomUser.objects.create(
             username="jamshidev", first_name="Jamshid", last_name="Mahmudjonov", email="jamshid@gmail.com")
         user.set_password("somepass")
         user.save()
