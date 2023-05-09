@@ -5,7 +5,11 @@
 {% block content %}
     <h1>Profile Page</h1>
 
-    <a href="{% url 'users:profile-edit' %}">Edit Profile</a>
+    <img class="profile-pic" src="{{ user.profile_picture.url }}" alt="Profile picture">
+
+    <div>
+        <a href="{% url 'users:profile-edit' %}">Edit Profile</a>
+    </div>
     
     <p>Username: {{ user.username }}</p>
     <p>First Name: {{ user.first_name }}</p>
