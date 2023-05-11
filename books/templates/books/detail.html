@@ -3,7 +3,7 @@
 {% block title %}Book Detail Page{% endblock %}
 
 {% block content %}
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-2">
             <img class="cover-pic" alt="Cover picture" src="{{ book.cover_picture.url }}">
         </div>
@@ -16,4 +16,18 @@
             </p>
         </div>
     </div>
+
+    <h4>Reviews</h4> <hr>
+
+    {% for review in book.bookreview_set.all %}
+        <div class="row mb-3">
+            <div class="col-1">
+                <img class="small-profile-pic" src="{{ review.user.profile_picture.url }}" alt="Profile picture">
+            </div>
+            <div class="col-7">
+                <b>{{ review.user.username }}</b> reated it {{ review.stars_given }} stars <span class="fw-lighter">{{ review.created_at }}</span>
+                <p class="mt-2 font-monospace">{{ review.comment }}</p>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}
