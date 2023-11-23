@@ -3,7 +3,7 @@ from books.models import Book, Author, BookAuthor, BookReview
 
 
 class BookAdmin(admin.ModelAdmin):
-    search_fields = ('title',)
+    search_fields = ("title",)
 
 
 class AuthorAdmin(admin.ModelAdmin):

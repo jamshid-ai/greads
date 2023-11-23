@@ -13,12 +13,12 @@ class RegisterationTestCase(TestCase):
                 "first_name": "Jamshid",
                 "last_name": "Mahmudjonov",
                 "email": "jmahmudjonov75@gmail.com",
-                "password": "somepassword"
-            }
+                "password": "somepassword",
+            },
         )
-        
+
         user = CustomUser.objects.get(username="jamshidev")
-        
+
         self.assertEqual(user.username, "jamshidev")
         self.assertEqual(user.first_name, "Jamshid")
         self.assertEqual(user.last_name, "Mahmudjonov")
@@ -29,14 +29,11 @@ class RegisterationTestCase(TestCase):
     def test_required_fields(self):
         response = self.client.post(
             reverse("users:register"),
-            data={
-                "first_name": "Jamshid",
-                "email": "jamshid@gmail.com"
-            }
+            data={"first_name": "Jamshid", "email": "jamshid@gmail.com"},
         )
-        
+
         user_count = CustomUser.objects.count()
-        
+
         self.assertEqual(user_count, 0)
         self.assertFormError(response, "form", "username", "This field is required.")
         self.assertFormError(response, "form", "password", "This field is required.")
@@ -49,17 +46,17 @@ class RegisterationTestCase(TestCase):
                 "first_name": "Jamshid",
                 "last_name": "Mahmudjonov",
                 "email": "invalid-email",
-                "password": "somepassword"
-            }
+                "password": "somepassword",
+            },
         )
-        
+
         user_count = CustomUser.objects.count()
-        
+
         self.assertEqual(user_count, 0)
         self.assertFormError(response, "form", "email", "Enter a valid email address.")
-        
+
     def test_unique_username(self):
-        # 1. create a user  
+        # 1. create a user
         user = CustomUser.objects.create(username="jamshidev", first_name="Jamshid")
         user.set_password("somepass")
         user.save()
@@ -73,7 +70,7 @@ class RegisterationTestCase(TestCase):
         #         "password": "somepassword"
         #     }
         # )
-        
+
         # 2. try to create another user with that same username
         response = self.client.post(
             reverse("users:register"),
@@ -82,33 +79,33 @@ class RegisterationTestCase(TestCase):
                 "first_name": "Jamshid",
                 "last_name": "Mahmudjonov",
                 "email": "invalid-email",
-                "password": "somepassword"
-            }
+                "password": "somepassword",
+            },
         )
-        
+
         # 3. check that the second user was not created
         user_count = CustomUser.objects.count()
-        
+
         self.assertEqual(user_count, 1)
-        
+
         # 4. check that the form contains the error message
-        self.assertFormError(response, "form", "username",
-                             "A user with that username already exists.")
+        self.assertFormError(
+            response, "form", "username", "A user with that username already exists."
+        )
 
 
 class LoginTestCase(TestCase):
     def setUp(self):
-        self.db_user = CustomUser.objects.create(username="jamshidev", first_name="Jamshid")
+        self.db_user = CustomUser.objects.create(
+            username="jamshidev", first_name="Jamshid"
+        )
         self.db_user.set_password("somepass")
         self.db_user.save()
-    
+
     def test_successful_login(self):
         self.client.post(
             reverse("users:login"),
-            data={
-                "username": "jamshidev",
-                "password": "somepass"
-            }
+            data={"username": "jamshidev", "password": "somepass"},
         )
 
         user = get_user(self.client)
@@ -118,10 +115,7 @@ class LoginTestCase(TestCase):
     def test_wrong_credential(self):
         self.client.post(
             reverse("users:login"),
-            data={
-                "username": "wrong-username",
-                "password": "somepass"
-            }
+            data={"username": "wrong-username", "password": "somepass"},
         )
 
         user = get_user(self.client)
@@ -129,20 +123,17 @@ class LoginTestCase(TestCase):
 
         self.client.post(
             reverse("users:login"),
-            data={
-                "username": "jamshidev",
-                "password": "wrong-passwor"
-            }
+            data={"username": "jamshidev", "password": "wrong-passwor"},
         )
 
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
-        
+
     def test_logout(self):
         self.client.login(username="jamshidev", password="somepass")
-        
+
         self.client.get(reverse("users:logout"))
-        
+
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
 
@@ -150,20 +141,24 @@ class LoginTestCase(TestCase):
 class ProfileTestCase(TestCase):
     def test_login_required(self):
         response = self.client.get(reverse("users:profile"))
-        
+
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("users:login") + "?next=/users/profile/")
 
     def test_profile_detail(self):
         user = CustomUser.objects.create(
-            username="jamshidev", first_name="Jamshid", last_name="Mahmudjonov", email="jamshid@gmail.com")
+            username="jamshidev",
+            first_name="Jamshid",
+            last_name="Mahmudjonov",
+            email="jamshid@gmail.com",
+        )
         user.set_password("somepass")
         user.save()
-        
+
         self.client.login(username="jamshidev", password="somepass")
-        
+
         response = self.client.get(reverse("users:profile"))
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, user.username)
         self.assertContains(response, user.first_name)
@@ -172,10 +167,14 @@ class ProfileTestCase(TestCase):
 
     def test_profile_update(self):
         user = CustomUser.objects.create(
-            username="jamshidev", first_name="Jamshid", last_name="Mahmudjonov", email="jamshid@gmail.com")
+            username="jamshidev",
+            first_name="Jamshid",
+            last_name="Mahmudjonov",
+            email="jamshid@gmail.com",
+        )
         user.set_password("somepass")
         user.save()
-        
+
         self.client.login(username="jamshidev", password="somepass")
 
         response = self.client.post(
@@ -184,8 +183,8 @@ class ProfileTestCase(TestCase):
                 "username": "jamshidev",
                 "first_name": "Jamshid",
                 "last_name": "Doe",
-                "email": "doe@gmail.com"
-            }
+                "email": "doe@gmail.com",
+            },
         )
         user.refresh_from_db()
 
